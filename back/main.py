@@ -23,7 +23,7 @@ app.add_middleware(
 @app.get("/")
 async def get():
     try:
-        client = MongoClient('mongodb://localhost:27017/test', serverSelectionTimeoutMS=1000)
+        client = MongoClient('mongodb://mongodb:27017/test', serverSelectionTimeoutMS=1000)
         client.server_info()
         return {"connected to bd"}
     except ConnectionFailure as e:

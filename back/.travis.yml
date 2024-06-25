@@ -6,6 +6,6 @@ services:
 script:
 - echo "hello world back"
 - env
-# si la build está en la rama master y no es un Pull Request, entonces debe desplegar el proyecto 
+# si la build está en la rama master y no es un Pull Request, entonces debe desplegar el proyecto
 - if [ "$TRAVIS_BRANCH" = "master" ] && [ "$TRAVIS_PULL_REQUEST" = "false" ]; then
   make deploy; else make lint_the_things; fi

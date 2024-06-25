@@ -1,0 +1,26 @@
+Con los siguientes comandos creamos el contenedor del backend y del frontend
+
+docker build -t back .
+
+docker build -t front .
+
+docker run -p 80:80 front
+
+docker run --name backend -p 8000:8000 back
+
+Corremos la base de datos:
+
+docker run -d --name mongodb -p 27017:27017 mongo
+
+
+Comando para crear la red de contenedores para conectar el backend con la base de datos:
+
+docker network create --attachable testnet
+
+Agregar base de datos a la red:
+
+docker network connect testnet mongodb
+
+Agregar backend a la red:
+
+docker network connect testnet backend

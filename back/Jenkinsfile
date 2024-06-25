@@ -8,15 +8,19 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                // Clonar el repositorio
-                git 'https://github.com/danielgiraldod12/IntegracionContinuaB01-30'
+                // Clonar el repositorio y dirigirse a la carpeta correcta
+                dir('back') {
+                    git branch: 'main', url: 'https://github.com/danielgiraldod12/IntegracionContinuaB01-30'
+                }
             }
         }
         stage('Build Docker Image') {
             steps {
                 script {
-                    // Construir la imagen Docker
-                    docker.build(DOCKER_IMAGE)
+                    // Construir la imagen Docker desde la carpeta 'back'
+                    dir('back') {
+                        docker.build(DOCKER_IMAGE)
+                    }
                 }
             }
         }

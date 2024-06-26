@@ -1,0 +1,81 @@
+pipeline {
+    agent {
+        docker {
+            // Especifico el tipo de imagen y el usuario que usara dentro para la ejecucion del pipeline
+            image 'python:3.9'
+            args '-v /var/run/docker.sock:/var/run/docker.sock'
+        }
+    }
+
+    stages {
+        stage('Verify Docker Permissions') {
+            steps {
+                sh 'docker --version'
+            }
+        }
+    }
+
+    environment {
+        DOCKER_IMAGE = "my-python-app"
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                // Clonar el repositorio y dirigirse a la carpeta correcta
+                dir('back') {
+                    git branch: 'main', url: 'https://github.com/danielgiraldod12/IntegracionContinuaB01-30'
+                }
+            }
+        }
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    // Construir la imagen Docker desde la carpeta 'back'
+                    dir('back') {
+                        docker.build(DOCKER_IMAGE)
+                    }
+                }
+            }
+        }
+        stage('Run Tests') {
+            steps {
+                script {
+                    // Ejecutar pruebas dentro del contenedor Docker
+                    docker.image(DOCKER_IMAGE).inside {
+                        sh 'pip install pytest'
+                        sh 'pytest'
+                    }
+                }
+            }
+        }
+        stage('Deploy') {
+            when {
+                branch 'main'  // Desplegar solo en la rama principal
+            }
+            steps {
+                script {
+                    // Etiquetar la imagen Docker
+                    docker.build(DOCKER_IMAGE).push("latest")
+                    
+                    sh 'docker run -d -p 8000:8000 my-python-app:latest'
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            // Limpiar el entorno después de la construcción
+            cleanWs()
+        }
+        success {
+            // Notificaciones en caso de éxito
+            echo 'Pipeline completed successfully.'
+        }
+        failure {
+            // Notificaciones en caso de fallo
+            echo 'Pipeline failed.'
+        }
+    }
+}

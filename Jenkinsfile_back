@@ -1,5 +1,9 @@
 pipeline {
     agent any
+    
+    environment {
+        DOCKER_IMAGE = "my-python-app"
+    }
 
     stages {
         stage('Verify Docker Permissions') {
@@ -7,13 +11,7 @@ pipeline {
                 sh 'docker --version'
             }
         }
-    }
 
-    environment {
-        DOCKER_IMAGE = "my-python-app"
-    }
-
-    stages {
         stage('Checkout') {
             steps {
                 // Clonar el repositorio y dirigirse a la carpeta correcta

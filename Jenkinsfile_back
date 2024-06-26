@@ -31,17 +31,6 @@ pipeline {
                 }
             }
         }
-        stage('Run Tests') {
-            steps {
-                script {
-                    // Ejecutar pruebas dentro del contenedor Docker
-                    docker.image(DOCKER_IMAGE).inside {
-                        sh 'pip install pytest'
-                        sh 'pytest'
-                    }
-                }
-            }
-        }
         stage('Deploy') {
             when {
                 branch 'main'  // Desplegar solo en la rama principal

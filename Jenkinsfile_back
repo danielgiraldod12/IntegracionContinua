@@ -26,7 +26,7 @@ pipeline {
                 script {
                     // Construir la imagen Docker desde la carpeta 'back'
                     dir('back') {
-                        docker.build(DOCKER_IMAGE)
+                        docker.build("${DOCKER_IMAGE}", ".")
                     }
                 }
             }

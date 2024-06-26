@@ -1,0 +1,78 @@
+pipeline {
+    agent {
+        docker {
+            image 'python:3.9'
+            args '-v /var/run/docker.sock:/var/run/docker.sock'
+        }
+    }
+
+    stages {
+        stage('Verify Docker Permissions') {
+            steps {
+                sh 'docker --version'
+            }
+        }
+    }
+
+    environment {
+        DOCKER_IMAGE = "my-node-app"
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+    
+                dir('front') {
+                    git branch: 'main', url: 'https://github.com/danielgiraldod12/IntegracionContinuaB01-30'
+                }
+            }
+        }
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    dir('front') {
+                        docker.build(DOCKER_IMAGE)
+                    }
+                }
+            }
+        }
+        stage('Run Tests') {
+            steps {
+                script {
+                    docker.image(DOCKER_IMAGE).inside {
+                        sh 'pip install pytest'
+                        sh 'pytest'
+                    }
+                }
+            }
+        }
+        stage('Deploy') {
+            when {
+                branch 'main'
+            }
+            steps {
+                script {
+                    // Settear la imagen "latest"
+                    docker.build(DOCKER_IMAGE).push("latest")
+                    
+                    sh 'docker run -d -p 8000:8000 my-python-app:latest'
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            // Limpiar el entorno después de la construcción
+            cleanWs()
+        }
+        success {
+            // Notificaciones en caso de éxito
+            echo 'Pipeline completado.'
+        }
+        failure {
+            // Notificaciones en caso de fallo
+            echo 'Pipeline fallo.'
+        }
+    }
+}

@@ -1,5 +1,18 @@
 pipeline {
-    agent any
+    agent {
+        docker {
+            image 'python:3.9'
+            args '-v /var/run/docker.sock:/var/run/docker.sock'
+        }
+    }
+
+    stages {
+        stage('Verify Docker Permissions') {
+            steps {
+                sh 'docker --version'
+            }
+        }
+    }
 
     environment {
         DOCKER_IMAGE = "my-python-app"
